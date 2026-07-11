@@ -2,6 +2,8 @@
 
 ### The first on-camera Model Context Protocol server — turning every Axis camera into an AI-native device.
 
+<img width="2752" height="1536" alt="AI_Server_Bridge_for_Cameras" src="https://github.com/user-attachments/assets/e12b8a19-4ddc-4ebd-b260-6426476258d2" />
+
 > **Any AI. Any camera. Zero cloud.**
 > Install one `.eap`, and Claude, Gemini, ChatGPT, Perplexity, or your own agent can see, understand, and operate the camera — directly, at the edge.
 
