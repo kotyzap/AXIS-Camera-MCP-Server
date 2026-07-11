@@ -150,6 +150,7 @@
     <a href="#tools">Tools</a>
     <a href="#console">Console</a>
     <a href="#architecture">Architecture</a>
+    <a href="#security">Security</a>
     <a href="#quickstart">Quick start</a>
     <a href="https://github.com/kotyzap/AXIS-MCP-Server" target="_blank" rel="noopener">GitHub</a>
     <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">Dark</button>
@@ -189,14 +190,14 @@
     <div class="card"><h3><span class="ic mono">∗</span>Model-agnostic</h3><p>Claude, Gemini / Antigravity, ChatGPT Developer Mode, Perplexity, and any custom agent. Open protocol, open future.</p></div>
     <div class="card"><h3><span class="ic mono">⌘</span>265 VAPIX tools</h3><p>Device health, snapshots, imaging, optics, autofocus, PTZ, guard tours, overlays, Zipstream, I/O, recordings, streaming, MQTT, audio, events, analytics, ops/diagnostics, device pairing, cloud recording, app control and guarded maintenance — as clean structured tools.</p></div>
     <div class="card"><h3><span class="ic mono">▶</span>CamStreamer suite</h3><p>Drive CamStreamer, CamSwitcher and CamOverlay. “Switch to the gate view and go live” — and it happens.</p></div>
-    <div class="card"><h3><span class="ic mono">🔒</span>Enterprise-safe</h3><p>Behind the camera's admin auth, with an optional bearer-guarded direct port. Parameter writes are allow-listed.</p></div>
+    <div class="card"><h3><span class="ic mono">🔒</span>Guardrailed by design</h3><p>Operator-set access levels (read-only by a switch), rate limits, allow-listed writes, and a direct port that's off by default. <a href="#security">See the security model →</a></p></div>
   </div>
 </div></section>
 
 <section id="tools" style="background:var(--bg2)"><div class="wrap">
   <div class="center"><h2>What the AI can do</h2><p class="sub">265 tools across 36 modules that return data an LLM can reason over — not raw CGI dumps.</p></div>
   <div class="grid g2">
-    <div class="card"><h3>Device &amp; health</h3><p class="mono" style="font-size:.85rem;color:var(--muted)">get_device_info · get_device_properties · get_system_status · get_time</p></div>
+    <div class="card"><h3>Device &amp; health</h3><p class="mono" style="font-size:.85rem;color:var(--muted)">get_device_info · get_device_properties · get_system_status · get_time · get_view_areas</p></div>
     <div class="card"><h3>Imaging &amp; optics</h3><p class="mono" style="font-size:.85rem;color:var(--muted)">take_snapshot · get/set_image_settings · set_zoom_focus · get_optics · autofocus</p></div>
     <div class="card"><h3>PTZ</h3><p class="mono" style="font-size:.85rem;color:var(--muted)">ptz_move · relative/absolute/continuous · ptz_query · ptz_preset_list (per view area, w/ pan/tilt/zoom) · presets (goto/save/remove)</p></div>
     <div class="card"><h3>Events &amp; analytics</h3><p class="mono" style="font-size:.85rem;color:var(--muted)">list_event_declarations · get_analytics_status</p></div>
@@ -279,6 +280,41 @@
   <p class="arch-note">Nothing leaves the LAN unless you deliberately expose it. <b>The intelligence runs where the pixels are.</b></p>
 </div></section>
 
+<section id="security" style="background:var(--bg2)"><div class="wrap">
+  <div class="center"><h2>Not a backdoor. A guarded front door.</h2><p class="sub">The AI gets exactly the access the operator grants — nothing more. Enforced in code, visible in the log.</p></div>
+  <div class="grid g3">
+    <div class="card"><h3><span class="ic mono">🚫</span>No user management</h3><p>The MCP cannot create users or touch credentials, network or system config — parameter writes are hard allow-listed to imaging, time, audio, events and overlays.</p></div>
+    <div class="card"><h3><span class="ic mono">🎚</span>Access levels</h3><p>A three-position operator switch: <b>Read-only</b> (138 inspection tools), <b>Operate</b> (default, +76 control tools), <b>Full</b> (+38 config/maintenance tools). Blocked tools return a polite refusal. <a href="#access-map">See the map →</a></p></div>
+    <div class="card"><h3><span class="ic mono">⏱</span>Rate limits &amp; caps</h3><p>60 tool calls/min, 20 writes/min, and a hard cap of 20 PTZ presets — an agent loop can't flood or vandalize the camera.</p></div>
+    <div class="card"><h3><span class="ic mono">✋</span>Confirmed destruction</h3><p>Reboot and factory default demand an explicit <span class="mono">confirm: true</span> on top of Full access. No accidental resets.</p></div>
+    <div class="card"><h3><span class="ic mono">🔑</span>Auth by default</h3><p>The direct LAN port is off by default; enabling it auto-generates a bearer token. The sanctioned route sits behind the camera's own admin digest auth.</p></div>
+    <div class="card"><h3><span class="ic mono">📜</span>Full audit trail</h3><p>Every request, tool call and guardrail refusal streams into the Live Log and the AXIS system log. The operator always sees what the AI did.</p></div>
+  </div>
+  <p class="arch-note">Details in <a href="https://github.com/kotyzap/AXIS-MCP-Server/blob/main/SECURITY.md" target="_blank" rel="noopener"><b>SECURITY.md</b></a>.</p>
+
+  <div id="access-map" style="margin-top:44px">
+    <div class="center"><h2 style="font-size:1.5rem">The access-level map</h2><p class="sub">Every one of the 252 tools is classified in <span class="mono">guardrails.ts</span>. Each level includes everything below it; unknown tools fail closed to Full.</p></div>
+    <div class="grid g3">
+      <div class="card">
+        <h3><span class="ic mono">👁</span>Read-only <span class="mono" style="font-size:.8rem;color:var(--muted)">138 tools</span></h3>
+        <p>Pure inspection — nothing on the camera changes. Device info &amp; health, snapshots, view areas, param reads, PTZ position/limits, event topics, analytics counts (AOA, people counter, queue, demographics, LPV plates), audio/imaging/zipstream status, stream URLs &amp; profiles, recordings list, audit &amp; system logs, MQTT/pairing/storage status, CamStreamer/CamSwitcher/CamOverlay listings.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ic mono">🕹</span>Operate <span class="mono" style="font-size:.8rem;color:var(--muted)">+76 tools · default</span></h3>
+        <p>Day-to-day control. PTZ moves &amp; presets, guard/recorded tours, autotracking, focus/zoom, image tuning (day-night, stabilizer, rotation, rate control), view-area geometry, native &amp; CamOverlay overlays, audio operation &amp; media clips, relay outputs, start/stop recordings, stream &amp; profile control, zipstream tuning, event schedules, CamStreamer/CamSwitcher control.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ic mono">🔧</span>Full <span class="mono" style="font-size:.8rem;color:var(--muted)">+38 tools</span></h3>
+        <p>Persistent configuration &amp; maintenance. Reboot and factory default (each also needs <span class="mono">confirm: true</span>), raw <span class="mono">set_param</span>, ACAP start/stop, config import, capture &amp; device mode, network/NTP/mDNS/geolocation/regional settings, MQTT wiring, signed video, analytics data plumbing, device &amp; camera pairing, recording groups and remote storage topology, log administration.</p>
+      </div>
+    </div>
+    <figure class="shot" style="margin-top:20px;max-width:760px;margin-left:auto;margin-right:auto">
+      <img src="img/axis-mcp-access-level-settings.png" alt="The AXIS MCP Server settings page with the three-position access level selector: Read-only, Operate, Full" onerror="this.closest('figure').style.display='none'">
+      <figcaption>The operator picks the level on the settings page — it applies immediately, no restart.</figcaption>
+    </figure>
+  </div>
+</div></section>
+
 <section id="quickstart" style="background:var(--bg2)"><div class="wrap">
   <div class="center"><h2>Up and running in minutes</h2><p class="sub">Build with Docker on your machine, install the .eap, point your agent at the camera.</p></div>
   <div class="steps" style="max-width:640px;margin:0 auto">
@@ -291,7 +327,7 @@ sh build.sh arm64   <span class="c"># → Axis_MCP_Server_1_2_0_aarch64.eap</spa
           <figcaption>Installed as a native ACAP on the AXIS Q1656.</figcaption>
         </figure>
       </div></div>
-      <div class="step"><span class="n"></span><div><h4>Connect any MCP client</h4><p>Use the direct LAN port — and tag the client so the console shows its logo.</p>
+      <div class="step"><span class="n"></span><div><h4>Connect any MCP client</h4><p>Enable the direct LAN port on the settings page (a bearer token is generated automatically) — and tag the client so the console shows its logo.</p>
         <pre class="code mono">claude mcp add --transport http axis-q1656 \
   http://&lt;camera-ip&gt;:8000/mcp
 
